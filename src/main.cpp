@@ -6,10 +6,20 @@ static LGFX display;
 
 int32_t width, height;
 
+static volatile uint32_t touchInterruptCount = 0;
+
+void IRAM_ATTR onTouchInterrupt(void) {
+  touchInterruptCount++;
+}
+
 void setup(void) {
   Serial.begin(115200);
 
   display.init();
+
+  pinMode(TOUCH_INT, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(TOUCH_INT), onTouchInterrupt, FALLING);
+  log_i("TOUCH_INT interrupt logging enabled on GPIO %d", TOUCH_INT);
 
   width = display.width();
   height = display.height();
@@ -43,6 +53,16 @@ void setup(void) {
 }
 
 void loop(void) {
+  uint32_t interruptCount = 0;
+  noInterrupts();
+  interruptCount = touchInterruptCount;
+  touchInterruptCount = 0;
+  interrupts();
+
+  if (interruptCount > 0) {
+    log_i("TOUCH_INT interrupt triggered (%u pending)", interruptCount);
+  }
+
   int32_t x = 0, y = 0;
   if (display.getTouch(&x, &y) && x > -1 && x < width && y > -1) {
     log_i("Touch detected at %d/%d", x, y);

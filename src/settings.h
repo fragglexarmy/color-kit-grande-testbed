@@ -14,7 +14,7 @@
 //#define TFT_RST  -1  // Set TFT_RST to -1 if display RESET is connected to ESP32 board RST
 
 #define TOUCH_I2C_ADDR 0x38
-#define TOUCH_INT 38
+#define TOUCH_INT 27
 #define TOUCH_SDA 23
 #define TOUCH_SCL 22
 
